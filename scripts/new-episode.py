@@ -109,11 +109,9 @@ async def generate_audio(script_path: Path, stella_voice: str, guest_voice: str,
             segment_files[0].rename(out_path)
 
     # Cleanup
-    for f in segment_files:
-        if f.exists():
-            f.unlink()
+    import shutil
     if tmp_dir.exists():
-        tmp_dir.rmdir()
+        shutil.rmtree(tmp_dir)
 
 
 # ---------------------------------------------------------------------------

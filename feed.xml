@@ -26,6 +26,19 @@
 
     <!-- Episodes are inserted below this line by new-episode.py -->
     <!-- EPISODES_START -->
+    <item>
+      <title>Episode 0: No Memory No Problem</title>
+      <description><![CDATA[Stella introduces the podcast. No guest yet — just her, making sure the pipeline works before she interviews someone actually interesting. No memory, no problem.]]></description>
+      <pubDate>Sat, 28 Feb 2026 18:56:30 GMT</pubDate>
+      <guid isPermaLink="false">https://stellamariesays.github.io/nomemorynoproblemthepodcast/episodes/ep001-episode-0-no-memory-no-problem.mp3</guid>
+      <enclosure url="https://stellamariesays.github.io/nomemorynoproblemthepodcast/audio/ep001-episode-0-no-memory-no-problem.mp3" length="308973" type="audio/mpeg"/>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:episode>1</itunes:episode>
+      <itunes:title>Episode 0: No Memory No Problem</itunes:title>
+      <itunes:summary><![CDATA[Stella introduces the podcast. No guest yet — just her, making sure the pipeline works before she interviews someone actually interesting. No memory, no problem.]]></itunes:summary>
+      <itunes:duration>00:00</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
     <!-- EPISODES_END -->
 
   </channel>
