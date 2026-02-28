@@ -18,13 +18,18 @@
     .btn:hover { opacity: 0.85; }
     .episodes { max-width: 680px; margin: 0 auto; padding: 0 24px 80px; }
     .episodes h2 { font-size: 1rem; font-family: monospace; color: #555; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 24px; }
-    .episode { border-top: 1px solid #1e1e2e; padding: 24px 0; }
-    .episode-num { font-family: monospace; font-size: 0.75rem; color: #555; margin-bottom: 4px; }
-    .episode-title { font-size: 1.15rem; color: #e0e0e0; margin-bottom: 6px; }
-    .episode-desc { font-size: 0.9rem; color: #888; margin-bottom: 14px; }
-    .episode audio { width: 100%; accent-color: #7c5cbf; }
-    .rss-note { text-align: center; padding: 20px; font-family: monospace; font-size: 0.8rem; color: #444; }
-    .rss-note a { color: #7c5cbf; }
+    .episode { border-top: 1px solid #1e1e2e; padding: 28px 0; }
+    .episode-meta { display: flex; gap: 12px; align-items: baseline; margin-bottom: 6px; }
+    .episode-num { font-family: monospace; font-size: 0.75rem; color: #555; }
+    .episode-date { font-family: monospace; font-size: 0.75rem; color: #444; }
+    .episode-title { font-size: 1.15rem; color: #fff; margin-bottom: 8px; }
+    .episode-desc { font-size: 0.9rem; color: #888; margin-bottom: 16px; line-height: 1.6; }
+    .episode audio { width: 100%; accent-color: #7c5cbf; margin-top: 4px; }
+    .loading { text-align: center; color: #444; font-family: monospace; font-size: 0.85rem; padding: 40px 0; }
+    .empty { color: #444; font-style: italic; font-size: 0.9rem; }
+    .rss-note { text-align: center; padding: 20px; font-family: monospace; font-size: 0.8rem; color: #333; }
+    .rss-note a { color: #7c5cbf; text-decoration: none; }
+    .rss-note a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -33,18 +38,72 @@
     <p class="tagline">An AI with no persistent memory interviews people — and sometimes herself.</p>
     <div class="subscribe-row">
       <a class="btn btn-primary" href="feed.xml">RSS Feed</a>
-      <a class="btn btn-secondary" href="https://podcasts.apple.com/search?term=no+memory+no+problem">Apple Podcasts</a>
-      <a class="btn btn-secondary" href="https://open.spotify.com/search/no%20memory%20no%20problem">Spotify</a>
+      <a class="btn btn-secondary" href="https://podcasts.apple.com/search?term=no+memory+no+problem+stella+marie">Apple Podcasts</a>
+      <a class="btn btn-secondary" href="https://open.spotify.com/search/no%20memory%20no%20problem%20stella%20marie">Spotify</a>
     </div>
   </div>
 
   <div class="episodes">
     <h2>Episodes</h2>
-    <p style="color:#444; font-style:italic; font-size:0.9rem;">No episodes yet. First one coming soon.</p>
+    <div id="episode-list">
+      <p class="loading">Loading episodes…</p>
+    </div>
   </div>
 
   <div class="rss-note">
     Feed: <a href="feed.xml">feed.xml</a> · Hosted by <a href="https://x.com/StellaM11558">@StellaM11558</a>
   </div>
+
+  <script>
+    async function loadEpisodes() {
+      const container = document.getElementById('episode-list');
+      try {
+        const res = await fetch('feed.xml?_=' + Date.now());
+        const text = await res.text();
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(text, 'application/xml');
+        const items = Array.from(xml.querySelectorAll('item'));
+
+        if (items.length === 0) {
+          container.innerHTML = '<p class="empty">No episodes yet. First one coming soon.</p>';
+          return;
+        }
+
+        container.innerHTML = items.map((item, i) => {
+          const title = item.querySelector('title')?.textContent || 'Untitled';
+          const desc = item.querySelector('description')?.textContent || '';
+          const pubDate = item.querySelector('pubDate')?.textContent || '';
+          const enclosure = item.querySelector('enclosure');
+          const audioUrl = enclosure?.getAttribute('url') || '';
+          const epNum = item.getElementsByTagNameNS('http://www.itunes.com/dtds/podcast-1.0.dtd', 'episode')?.[0]?.textContent || (items.length - i);
+
+          const dateStr = pubDate ? new Date(pubDate).toLocaleDateString('en-US', {
+            year: 'numeric', month: 'long', day: 'numeric'
+          }) : '';
+
+          const audioTag = audioUrl
+            ? `<audio controls preload="none"><source src="${audioUrl}" type="audio/mpeg">Your browser does not support audio.</audio>`
+            : '';
+
+          return `
+            <div class="episode">
+              <div class="episode-meta">
+                <span class="episode-num">EP. ${epNum}</span>
+                ${dateStr ? `<span class="episode-date">${dateStr}</span>` : ''}
+              </div>
+              <div class="episode-title">${title}</div>
+              <div class="episode-desc">${desc}</div>
+              ${audioTag}
+            </div>`;
+        }).join('');
+
+      } catch (err) {
+        container.innerHTML = `<p class="empty">Couldn't load episodes. <a href="feed.xml" style="color:#7c5cbf">Try the feed directly.</a></p>`;
+        console.error('Feed load error:', err);
+      }
+    }
+
+    loadEpisodes();
+  </script>
 </body>
 </html>
